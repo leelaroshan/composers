@@ -1,25 +1,61 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import ComposerGrid from "./components/ComposerGrid";
+import useComposers from "./useComposers";
+import { useState } from "react";
 
-function App() {
+export default function App() {
+  const [composers, isLoading, error, loadComposers] = useComposers();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  /*
+  useEffect(() => {
+    if (!searchQuery) reset();
+  }, [searchQuery]);
+  */
+
+  const onChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const getContent = () => {
+    if (isLoading) return <div>is Loading</div>;
+    if (error) return <div>Request failed!</div>;
+    if (!composers.length) return <div>No result matched your search</div>;
+
+    return <ComposerGrid items={composers} />;
+  };
+
+  const reset = () => {
+    setSearchQuery("");
+    loadComposers();
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="container">
+      <div className="titel">
+        <h1>Hello Composers</h1>
+      </div>
+      <div className="SearchActions">
+        <input
+          placeholder="type at least 4 characters..."
+          onChange={onChange}
+          value={searchQuery}
+          className="SearchInput"
+          type="text"
+        />{" "}
+        <button
+          disabled={searchQuery.length < 4}
+          onClick={() => loadComposers(searchQuery)}
+          className="SearchButton"
         >
-          Learn React
-        </a>
-      </header>
+          search
+        </button>
+        <button onClick={reset} className="SearchButton">
+          reset
+        </button>
+      </div>
+      {getContent()}
     </div>
   );
 }
-
-export default App;
